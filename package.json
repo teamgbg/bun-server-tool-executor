@@ -1,0 +1,368 @@
+{
+  "_generated": {
+    "system": "package-json@1.0.0",
+    "status": "generated",
+    "edit": "edit src/ — dependencies and exports derive from imports; everything else preserved"
+  },
+  "name": "@teamscala/tool-executor",
+  "capability": "Tool executor: ORPC procedure runtime consuming tool_definition rows, executing via executor_dispatch, with audit + FTS routing.",
+  "tier": "server",
+  "type": "module",
+  "version": "4.1.80",
+  "description": "Tool executor: ORPC procedure runtime consuming tool_definition rows, executing via executor_dispatch, with audit + FTS routing.",
+  "imports": {
+    "#tool-executor/*": "./src/*",
+    "#tool-executor/*.ts": "./src/*.ts"
+  },
+  "files": [
+    "src"
+  ],
+  "dependencies": {
+    "@orpc/server": "*",
+    "@teamscala/cache": "*",
+    "@teamscala/db": "*",
+    "@teamscala/db-validation": "*",
+    "@teamscala/formatters": "*",
+    "@teamscala/os": "*",
+    "valibot": "*"
+  },
+  "devDependencies": {
+    "bun-types": "*",
+    "@happy-dom/global-registrator": "*",
+    "@testing-library/react": "*"
+  },
+  "exports": {
+    "./configure": {
+      "types": "./src/configure.d.ts",
+      "default": "./src/configure.ts"
+    },
+    "./configure.ts": {
+      "types": "./src/configure.d.ts",
+      "default": "./src/configure.ts"
+    },
+    "./dispatch/dispatch": {
+      "types": "./src/dispatch/dispatch.d.ts",
+      "default": "./src/dispatch/dispatch.ts"
+    },
+    "./dispatch/dispatch.ts": {
+      "types": "./src/dispatch/dispatch.d.ts",
+      "default": "./src/dispatch/dispatch.ts"
+    },
+    "./executors/auth/api-key": {
+      "types": "./src/executors/auth/api-key.d.ts",
+      "default": "./src/executors/auth/api-key.ts"
+    },
+    "./executors/auth/api-key.ts": {
+      "types": "./src/executors/auth/api-key.d.ts",
+      "default": "./src/executors/auth/api-key.ts"
+    },
+    "./executors/auth/internal": {
+      "types": "./src/executors/auth/internal.d.ts",
+      "default": "./src/executors/auth/internal.ts"
+    },
+    "./executors/auth/internal.ts": {
+      "types": "./src/executors/auth/internal.d.ts",
+      "default": "./src/executors/auth/internal.ts"
+    },
+    "./executors/auth/oauth": {
+      "types": "./src/executors/auth/oauth.d.ts",
+      "default": "./src/executors/auth/oauth.ts"
+    },
+    "./executors/auth/oauth.ts": {
+      "types": "./src/executors/auth/oauth.d.ts",
+      "default": "./src/executors/auth/oauth.ts"
+    },
+    "./executors/auth/resolve": {
+      "types": "./src/executors/auth/resolve.d.ts",
+      "default": "./src/executors/auth/resolve.ts"
+    },
+    "./executors/auth/resolve.ts": {
+      "types": "./src/executors/auth/resolve.d.ts",
+      "default": "./src/executors/auth/resolve.ts"
+    },
+    "./executors/caller-cli-session": {
+      "types": "./src/executors/caller-cli-session.d.ts",
+      "default": "./src/executors/caller-cli-session.ts"
+    },
+    "./executors/caller-cli-session.ts": {
+      "types": "./src/executors/caller-cli-session.d.ts",
+      "default": "./src/executors/caller-cli-session.ts"
+    },
+    "./executors/coding-local": {
+      "types": "./src/executors/coding-local.d.ts",
+      "default": "./src/executors/coding-local.ts"
+    },
+    "./executors/coding-local.ts": {
+      "types": "./src/executors/coding-local.d.ts",
+      "default": "./src/executors/coding-local.ts"
+    },
+    "./executors/comment-write-identity": {
+      "types": "./src/executors/comment-write-identity.d.ts",
+      "default": "./src/executors/comment-write-identity.ts"
+    },
+    "./executors/comment-write-identity.ts": {
+      "types": "./src/executors/comment-write-identity.d.ts",
+      "default": "./src/executors/comment-write-identity.ts"
+    },
+    "./executors/host-command": {
+      "types": "./src/executors/host-command.d.ts",
+      "default": "./src/executors/host-command.ts"
+    },
+    "./executors/host-command.ts": {
+      "types": "./src/executors/host-command.d.ts",
+      "default": "./src/executors/host-command.ts"
+    },
+    "./executors/messaging-send-attribution": {
+      "types": "./src/executors/messaging-send-attribution.d.ts",
+      "default": "./src/executors/messaging-send-attribution.ts"
+    },
+    "./executors/messaging-send-attribution.ts": {
+      "types": "./src/executors/messaging-send-attribution.d.ts",
+      "default": "./src/executors/messaging-send-attribution.ts"
+    },
+    "./executors/messaging-send-recorder": {
+      "types": "./src/executors/messaging-send-recorder.d.ts",
+      "default": "./src/executors/messaging-send-recorder.ts"
+    },
+    "./executors/messaging-send-recorder.ts": {
+      "types": "./src/executors/messaging-send-recorder.d.ts",
+      "default": "./src/executors/messaging-send-recorder.ts"
+    },
+    "./executors/orpc": {
+      "types": "./src/executors/orpc.d.ts",
+      "default": "./src/executors/orpc.ts"
+    },
+    "./executors/orpc.ts": {
+      "types": "./src/executors/orpc.d.ts",
+      "default": "./src/executors/orpc.ts"
+    },
+    "./executors/orpc-args": {
+      "types": "./src/executors/orpc-args.d.ts",
+      "default": "./src/executors/orpc-args.ts"
+    },
+    "./executors/orpc-args.ts": {
+      "types": "./src/executors/orpc-args.d.ts",
+      "default": "./src/executors/orpc-args.ts"
+    },
+    "./executors/orpc-args-where": {
+      "types": "./src/executors/orpc-args-where.d.ts",
+      "default": "./src/executors/orpc-args-where.ts"
+    },
+    "./executors/orpc-args-where.ts": {
+      "types": "./src/executors/orpc-args-where.d.ts",
+      "default": "./src/executors/orpc-args-where.ts"
+    },
+    "./executors/orpc-bulk-gate": {
+      "types": "./src/executors/orpc-bulk-gate.d.ts",
+      "default": "./src/executors/orpc-bulk-gate.ts"
+    },
+    "./executors/orpc-bulk-gate.ts": {
+      "types": "./src/executors/orpc-bulk-gate.d.ts",
+      "default": "./src/executors/orpc-bulk-gate.ts"
+    },
+    "./executors/orpc-enrichment": {
+      "types": "./src/executors/orpc-enrichment.d.ts",
+      "default": "./src/executors/orpc-enrichment.ts"
+    },
+    "./executors/orpc-enrichment.ts": {
+      "types": "./src/executors/orpc-enrichment.d.ts",
+      "default": "./src/executors/orpc-enrichment.ts"
+    },
+    "./executors/orpc-search": {
+      "types": "./src/executors/orpc-search.d.ts",
+      "default": "./src/executors/orpc-search.ts"
+    },
+    "./executors/orpc-search.ts": {
+      "types": "./src/executors/orpc-search.d.ts",
+      "default": "./src/executors/orpc-search.ts"
+    },
+    "./executors/orpc/enumerate-bulk-targets": {
+      "types": "./src/executors/orpc/enumerate-bulk-targets.d.ts",
+      "default": "./src/executors/orpc/enumerate-bulk-targets.ts"
+    },
+    "./executors/orpc/enumerate-bulk-targets.ts": {
+      "types": "./src/executors/orpc/enumerate-bulk-targets.d.ts",
+      "default": "./src/executors/orpc/enumerate-bulk-targets.ts"
+    },
+    "./executors/orpc/final-args-by-method": {
+      "types": "./src/executors/orpc/final-args-by-method.d.ts",
+      "default": "./src/executors/orpc/final-args-by-method.ts"
+    },
+    "./executors/orpc/final-args-by-method.ts": {
+      "types": "./src/executors/orpc/final-args-by-method.d.ts",
+      "default": "./src/executors/orpc/final-args-by-method.ts"
+    },
+    "./executors/orpc/orpc-postprocess": {
+      "types": "./src/executors/orpc/orpc-postprocess.d.ts",
+      "default": "./src/executors/orpc/orpc-postprocess.ts"
+    },
+    "./executors/orpc/orpc-postprocess.ts": {
+      "types": "./src/executors/orpc/orpc-postprocess.d.ts",
+      "default": "./src/executors/orpc/orpc-postprocess.ts"
+    },
+    "./executors/orpc/orpc-registry-validation": {
+      "types": "./src/executors/orpc/orpc-registry-validation.d.ts",
+      "default": "./src/executors/orpc/orpc-registry-validation.ts"
+    },
+    "./executors/orpc/orpc-registry-validation.ts": {
+      "types": "./src/executors/orpc/orpc-registry-validation.d.ts",
+      "default": "./src/executors/orpc/orpc-registry-validation.ts"
+    },
+    "./executors/orpc/prepare-args": {
+      "types": "./src/executors/orpc/prepare-args.d.ts",
+      "default": "./src/executors/orpc/prepare-args.ts"
+    },
+    "./executors/orpc/prepare-args.ts": {
+      "types": "./src/executors/orpc/prepare-args.d.ts",
+      "default": "./src/executors/orpc/prepare-args.ts"
+    },
+    "./executors/orpc/prepare-args-guard": {
+      "types": "./src/executors/orpc/prepare-args-guard.d.ts",
+      "default": "./src/executors/orpc/prepare-args-guard.ts"
+    },
+    "./executors/orpc/prepare-args-guard.ts": {
+      "types": "./src/executors/orpc/prepare-args-guard.d.ts",
+      "default": "./src/executors/orpc/prepare-args-guard.ts"
+    },
+    "./executors/orpc/preprocess-search": {
+      "types": "./src/executors/orpc/preprocess-search.d.ts",
+      "default": "./src/executors/orpc/preprocess-search.ts"
+    },
+    "./executors/orpc/preprocess-search.ts": {
+      "types": "./src/executors/orpc/preprocess-search.d.ts",
+      "default": "./src/executors/orpc/preprocess-search.ts"
+    },
+    "./executors/orpc/protected-unique-write": {
+      "types": "./src/executors/orpc/protected-unique-write.d.ts",
+      "default": "./src/executors/orpc/protected-unique-write.ts"
+    },
+    "./executors/orpc/protected-unique-write.ts": {
+      "types": "./src/executors/orpc/protected-unique-write.d.ts",
+      "default": "./src/executors/orpc/protected-unique-write.ts"
+    },
+    "./executors/orpc/resolve-caller-user": {
+      "types": "./src/executors/orpc/resolve-caller-user.d.ts",
+      "default": "./src/executors/orpc/resolve-caller-user.ts"
+    },
+    "./executors/orpc/resolve-caller-user.ts": {
+      "types": "./src/executors/orpc/resolve-caller-user.d.ts",
+      "default": "./src/executors/orpc/resolve-caller-user.ts"
+    },
+    "./executors/sdk": {
+      "types": "./src/executors/sdk.d.ts",
+      "default": "./src/executors/sdk.ts"
+    },
+    "./executors/sdk.ts": {
+      "types": "./src/executors/sdk.d.ts",
+      "default": "./src/executors/sdk.ts"
+    },
+    "./executors/sdk-client-options": {
+      "types": "./src/executors/sdk-client-options.d.ts",
+      "default": "./src/executors/sdk-client-options.ts"
+    },
+    "./executors/sdk-client-options.ts": {
+      "types": "./src/executors/sdk-client-options.d.ts",
+      "default": "./src/executors/sdk-client-options.ts"
+    },
+    "./executors/work-items-status-bulk-gate": {
+      "types": "./src/executors/work-items-status-bulk-gate.d.ts",
+      "default": "./src/executors/work-items-status-bulk-gate.ts"
+    },
+    "./executors/work-items-status-bulk-gate.ts": {
+      "types": "./src/executors/work-items-status-bulk-gate.d.ts",
+      "default": "./src/executors/work-items-status-bulk-gate.ts"
+    },
+    "./lib/auth": {
+      "types": "./src/lib/auth.d.ts",
+      "default": "./src/lib/auth.ts"
+    },
+    "./lib/auth.ts": {
+      "types": "./src/lib/auth.d.ts",
+      "default": "./src/lib/auth.ts"
+    },
+    "./lib/cache-controls": {
+      "types": "./src/lib/cache-controls.d.ts",
+      "default": "./src/lib/cache-controls.ts"
+    },
+    "./lib/cache-controls.ts": {
+      "types": "./src/lib/cache-controls.d.ts",
+      "default": "./src/lib/cache-controls.ts"
+    },
+    "./lib/default-limits": {
+      "types": "./src/lib/default-limits.d.ts",
+      "default": "./src/lib/default-limits.ts"
+    },
+    "./lib/default-limits.ts": {
+      "types": "./src/lib/default-limits.d.ts",
+      "default": "./src/lib/default-limits.ts"
+    },
+    "./lib/fts-registry": {
+      "types": "./src/lib/fts-registry.d.ts",
+      "default": "./src/lib/fts-registry.ts"
+    },
+    "./lib/fts-registry.ts": {
+      "types": "./src/lib/fts-registry.d.ts",
+      "default": "./src/lib/fts-registry.ts"
+    },
+    "./lib/prisma-meta": {
+      "types": "./src/lib/prisma-meta.d.ts",
+      "default": "./src/lib/prisma-meta.ts"
+    },
+    "./lib/prisma-meta.ts": {
+      "types": "./src/lib/prisma-meta.d.ts",
+      "default": "./src/lib/prisma-meta.ts"
+    },
+    "./lib/response": {
+      "types": "./src/lib/response.d.ts",
+      "default": "./src/lib/response.ts"
+    },
+    "./lib/response.ts": {
+      "types": "./src/lib/response.d.ts",
+      "default": "./src/lib/response.ts"
+    },
+    "./lib/scope": {
+      "types": "./src/lib/scope.d.ts",
+      "default": "./src/lib/scope.ts"
+    },
+    "./lib/scope.ts": {
+      "types": "./src/lib/scope.d.ts",
+      "default": "./src/lib/scope.ts"
+    },
+    "./lib/stored-tool-runtime": {
+      "types": "./src/lib/stored-tool-runtime.d.ts",
+      "default": "./src/lib/stored-tool-runtime.ts"
+    },
+    "./lib/stored-tool-runtime.ts": {
+      "types": "./src/lib/stored-tool-runtime.d.ts",
+      "default": "./src/lib/stored-tool-runtime.ts"
+    },
+    "./lib/system-caller": {
+      "types": "./src/lib/system-caller.d.ts",
+      "default": "./src/lib/system-caller.ts"
+    },
+    "./lib/system-caller.ts": {
+      "types": "./src/lib/system-caller.d.ts",
+      "default": "./src/lib/system-caller.ts"
+    },
+    "./lib/types": {
+      "types": "./src/lib/types.d.ts",
+      "default": "./src/lib/types.ts"
+    },
+    "./lib/types.ts": {
+      "types": "./src/lib/types.d.ts",
+      "default": "./src/lib/types.ts"
+    },
+    "./tool-contract": {
+      "types": "./src/tool-contract.d.ts",
+      "default": "./src/tool-contract.ts"
+    },
+    "./tool-contract.ts": {
+      "types": "./src/tool-contract.d.ts",
+      "default": "./src/tool-contract.ts"
+    }
+  },
+  "repository": "https://github.com/teamgbg/bun-server-tool-executor",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  }
+}
