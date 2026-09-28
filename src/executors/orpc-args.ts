@@ -38,7 +38,6 @@ import {
 	liftRemainingColumnFilters,
 	RESERVED_INPUT_KEYS,
 } from "./orpc-args-where.ts";
-import { isObjectWithKeys } from "./orpc-bulk-gate.ts";
 
 /**
  * Context protection limits — prevent AI agents from blowing up their context window.

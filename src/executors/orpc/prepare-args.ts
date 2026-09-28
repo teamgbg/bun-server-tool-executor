@@ -43,10 +43,7 @@ import type {
 	ExecutionContext,
 	OrpcExecutorConfig,
 } from "#tool-executor/lib/types.ts";
-import {
-	applyWhereConstraint,
-	rejectForbiddenFieldValues,
-} from "./prepare-args-guard.ts";
+import { rejectForbiddenFieldValues } from "./prepare-args-guard.ts";
 
 export async function prepareArgs(
 	args: Record<string, unknown>,

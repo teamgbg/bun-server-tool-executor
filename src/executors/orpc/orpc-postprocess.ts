@@ -5,7 +5,6 @@
  */
 
 import type { PrismaClient } from "@teamscala/db/client";
-import { getLogger } from "#tool-executor/configure.ts";
 import { addPaginationHint } from "#tool-executor/lib/default-limits.ts";
 import {
 	compactTranscriptFields,
@@ -19,8 +18,6 @@ import type {
 	OrpcExecutorConfig,
 } from "#tool-executor/lib/types.ts";
 import { applyEnrichment } from "../orpc-enrichment";
-
-const logger = getLogger();
 
 export async function postProcessResult(
 	result: unknown,
