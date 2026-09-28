@@ -18,32 +18,24 @@
 		"src"
 	],
 	"dependencies": {
-		"@orpc/server": "*",
-		"@teamscala/cache": "*",
-		"@teamscala/db": "*",
-		"@teamscala/db-validation": "*",
-		"@teamscala/formatters": "*",
-		"@teamscala/os": "*",
-		"valibot": "*"
+		"@orpc/server": "1.15.4",
+		"@teamscala/cache": "1.0.79",
+		"@teamscala/db": "1.21.43767",
+		"@teamscala/db-validation": "0.1.387",
+		"@teamscala/formatters": "0.2.95",
+		"@teamscala/os": "1.15.266",
+		"valibot": "1.5.0"
 	},
 	"devDependencies": {
-		"bun-types": "*",
-		"@happy-dom/global-registrator": "*",
-		"@testing-library/react": "*"
+		"bun-types": "1.4.2",
+		"@happy-dom/global-registrator": "20.14.5",
+		"@testing-library/react": "16.3.3"
 	},
 	"exports": {
 		"./configure": "./src/configure.ts",
 		"./configure.ts": "./src/configure.ts",
 		"./dispatch/dispatch": "./src/dispatch/dispatch.ts",
 		"./dispatch/dispatch.ts": "./src/dispatch/dispatch.ts",
-		"./executors/auth/api-key": "./src/executors/auth/api-key.ts",
-		"./executors/auth/api-key.ts": "./src/executors/auth/api-key.ts",
-		"./executors/auth/internal": "./src/executors/auth/internal.ts",
-		"./executors/auth/internal.ts": "./src/executors/auth/internal.ts",
-		"./executors/auth/oauth": "./src/executors/auth/oauth.ts",
-		"./executors/auth/oauth.ts": "./src/executors/auth/oauth.ts",
-		"./executors/auth/resolve": "./src/executors/auth/resolve.ts",
-		"./executors/auth/resolve.ts": "./src/executors/auth/resolve.ts",
 		"./executors/caller-cli-session": "./src/executors/caller-cli-session.ts",
 		"./executors/caller-cli-session.ts": "./src/executors/caller-cli-session.ts",
 		"./executors/coding-local": "./src/executors/coding-local.ts",
@@ -106,14 +98,10 @@
 		"./lib/response.ts": "./src/lib/response.ts",
 		"./lib/scope": "./src/lib/scope.ts",
 		"./lib/scope.ts": "./src/lib/scope.ts",
-		"./lib/stored-tool-runtime": "./src/lib/stored-tool-runtime.ts",
-		"./lib/stored-tool-runtime.ts": "./src/lib/stored-tool-runtime.ts",
 		"./lib/system-caller": "./src/lib/system-caller.ts",
 		"./lib/system-caller.ts": "./src/lib/system-caller.ts",
 		"./lib/types": "./src/lib/types.ts",
-		"./lib/types.ts": "./src/lib/types.ts",
-		"./tool-contract": "./src/tool-contract.ts",
-		"./tool-contract.ts": "./src/tool-contract.ts"
+		"./lib/types.ts": "./src/lib/types.ts"
 	},
 	"repository": "https://github.com/teamgbg/bun-server-tool-executor",
 	"publishConfig": {
