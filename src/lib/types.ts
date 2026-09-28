@@ -4,7 +4,7 @@
  * @edit edit directly
  *
  * Core type definitions for the tool executor: discriminated ExecutorConfig
- * (OrpcExecutorConfig | HttpExecutorConfig | SdkExecutorConfig),
+ * (OrpcExecutorConfig | SdkExecutorConfig),
  * EnrichConfig for post-query joins, and ExecutionContext carrying
  * user/org/admin state into each tool call.
  */
@@ -137,53 +137,6 @@ export interface OrpcExecutorConfig extends ExecutorConfigShared {
 
 	// Post-query enrichment
 	enrich?: EnrichConfig[];
-}
-
-// --- HTTP executor config ---
-
-export interface HttpExecutorConfig extends ExecutorConfigShared {
-	executor_key: "http";
-
-	// Request timeout in ms
-	timeout?: number;
-	requiresContext?: boolean;
-
-	// External API base URL
-	baseUrl?: string;
-
-	// API key resolution
-	apiKeyEnvVar?: string;
-	apiKeyHeader?: string;
-	apiKeyRaw?: boolean;
-	apiKeyBodyField?: string;
-
-	// Basic Auth
-	authType?: "basic";
-	basicAuthUser?: string;
-
-	// Map tool arg names to custom HTTP headers
-	headerMap?: Record<string, string>;
-
-	// OAuth token source
-	tokenSource?:
-		| "ghl_integrations"
-		| "zoho_assist_integrations"
-		| "wise_settings"
-		| "organisation_integrations.instantly"
-		| "organisation_integrations.a_leads"
-		| `oauth_connections:${string}`
-		| `user_profiles:${string}`;
-	tokenHeader?: string;
-	tokenDomainField?: string;
-
-	// Lowercase specified fields before sending
-	lowercaseFields?: string[];
-
-	// Wrap request body in a key
-	bodyWrapper?: string;
-
-	// Action-based endpoint routing
-	endpointMap?: Record<string, { endpoint: string; method: string }>;
 }
 
 // --- SDK executor config ---

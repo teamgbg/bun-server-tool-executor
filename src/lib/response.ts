@@ -37,6 +37,13 @@
  * 2. Truncates the array to fit within the limit
  * 3. Adds a pagination hint so the AI knows how to get more results
  *
+ * THE CEILING IS ABSOLUTE, NOT BEST-EFFORT. Shapes with no array to paginate
+ * (a single wide row, an irreducible object) used to measure the overage and
+ * return the value anyway — measured 2026-09-12 a PA agent hit exactly that
+ * shape, 9.5MB reached the model, and the engine refused the turn. A result
+ * that cannot be paginated below the ceiling is WITHHELD with an `_oversized`
+ * reason naming the size and the narrowing to apply.
+ *
  * Channel/orchestrator-message delivery results are exempt (see
  * `isChannelMessageResult`): they carry the message body the operator must see
  * in full and are never paginated.
@@ -217,6 +224,23 @@ export function truncateLargeResponse(result: unknown): unknown {
 				},
 			};
 		}
+	}
+
+	// The ceiling holds for EVERY shape, not only the ones an array can shrink.
+	// Pagination is exhausted (or was never available), so passing the value on
+	// would be the report of a bound never measured — withhold it with the size
+	// and the narrowing that actually reduces it.
+	const bounded = JSON.stringify(result).length;
+	if (bounded > MAX_RESPONSE_SIZE) {
+		logger.warn(
+			`[Response] Withheld ${bounded}-byte result: no array to paginate below the ${MAX_RESPONSE_SIZE}-byte ceiling`,
+		);
+		return {
+			_oversized: {
+				originalBytes: bounded,
+				reason: `Result is ${bounded} bytes and cannot be paginated below the ${MAX_RESPONSE_SIZE}-byte ceiling. Narrow the query — select fewer fields, take fewer rows, or filter tighter.`,
+			},
+		};
 	}
 
 	return result;
