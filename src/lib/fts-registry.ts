@@ -81,12 +81,3 @@ export async function getFullTextSearchInfo(
 	const models = await getSearchableModels();
 	return models.get(modelName) ?? null;
 }
-
-/**
- * Force refresh the cache (e.g. after adding a search_content_tsv column).
- */
-export function invalidateFtsRegistry(): void {
-	searchableModels = null;
-	nextRefreshAt = 0;
-	logger.info("[FTS Registry] Cache invalidated");
-}
