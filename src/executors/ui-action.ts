@@ -29,7 +29,11 @@
  *
  * PER-SLUG BEHAVIOUR IS ROW DATA. The action verb, the procedure, the id arg,
  * the id field and the payload template all live in executor_config. Adding a
- * seventh surface is a registry row, not a case label here.
+ * seventh surface is a registry row, not a case label here. `resolve` is
+ * optional: a surface the CLIENT resolves (show_document, show_website — the AI
+ * supplies an id, the client looks it up in its own page state) is an echo row
+ * with no server entity and nothing to leak, so the row declares the action and
+ * the payload and the id returns through {arg.<name>}.
  *
  * FAILS CLOSED, NEVER DEGRADES. An id the agent does not hold, a missing
  * agentId, a missing config field: each answers "not found" (or a message
@@ -51,14 +55,17 @@ const logger = getLogger();
 const DEFAULT_AGENT_PROCEDURE = "ai_agents.findFirst";
 
 /**
- * Interpolate `{resolve.<field>}` / `{organisationId}` / `{userId}` /
- * `{agentId}` into a declared payload. A placeholder with no value renders as
- * the empty string rather than leaking the literal token to a client, and a
- * non-string payload value passes through unchanged.
+ * Interpolate `{resolve.<field>}` / `{arg.<name>}` / `{organisationId}` /
+ * `{userId}` / `{agentId}` into a declared payload. A placeholder with no value
+ * renders as the empty string rather than leaking the literal token to a
+ * client, and a non-string payload value passes through unchanged. `{arg.*}`
+ * exists for echo rows (no resolve): the caller already holds the id, so the
+ * payload echoes what the client will resolve on its own page state.
  */
 function interpolate(
 	value: unknown,
 	resolved: Record<string, unknown>,
+	args: Record<string, unknown>,
 	context: ExecutionContext,
 ): unknown {
 	if (typeof value === "string") {
@@ -66,17 +73,28 @@ function interpolate(
 		for (const [field, cell] of Object.entries(resolved)) {
 			out = out.replaceAll(`{resolve.${field}}`, cell == null ? "" : String(cell));
 		}
+		for (const [name, cell] of Object.entries(args)) {
+			if (typeof cell === "string" || typeof cell === "number" || typeof cell === "boolean") {
+				out = out.replaceAll(`{arg.${name}}`, String(cell));
+			}
+		}
+		// A placeholder naming a field the row/args do not hold renders empty,
+		// never the literal token: after substitution anything still shaped
+		// {resolve.*} / {arg.*} had no source, so it is dropped. (Measured by the
+		// suite: a leaked "{arg.document_id}" in a served payload IS the failure
+		// this replaces.)
+		out = out.replace(/\{(?:resolve|arg)\.[^{}]+\}/g, "");
 		out = out
 			.replaceAll("{organisationId}", context.organisationId ?? "")
 			.replaceAll("{userId}", context.userId ?? "")
 			.replaceAll("{agentId}", context.agentId ?? "");
 		return out;
 	}
-	if (Array.isArray(value)) return value.map((entry) => interpolate(entry, resolved, context));
+	if (Array.isArray(value)) return value.map((entry) => interpolate(entry, resolved, args, context));
 	if (value && typeof value === "object") {
 		const out: Record<string, unknown> = {};
 		for (const [key, entry] of Object.entries(value as Record<string, unknown>)) {
-			out[key] = interpolate(entry, resolved, context);
+			out[key] = interpolate(entry, resolved, args, context);
 		}
 		return out;
 	}
@@ -129,7 +147,24 @@ export async function executeUiActionTool(
 			`Tool ${tool.name}: ui-action executor_config must declare "action" — the UI verb the client renders.`,
 		);
 	}
-	const { procedure, idArg, idField } = config.resolve ?? {};
+
+	// ECHO ROWS. resolve is OPTIONAL: a surface with no server entity (the AI
+	// supplies a document_id / page_id and the CLIENT resolves it against its
+	// own page state) has nothing for resolve to find and no scope check that
+	// applies — there is no row to leak. The row still declares the action and
+	// the payload; the id comes back through {arg.<name>}. What resolve grants
+	// when PRESENT is unchanged below: read the row through the declared
+	// procedure and authorize it against the agent before rendering.
+	if (!config.resolve) {
+		if (!config.payload) {
+			throw new Error(
+				`Tool ${tool.name}: echo ui-action (no resolve) must declare a payload — an echo with nothing declared is a row that renders nothing.`,
+			);
+		}
+		return interpolate(config.payload, {}, args, context);
+	}
+
+	const { procedure, idArg, idField } = config.resolve;
 	if (!procedure || !idArg || !idField) {
 		throw new Error(
 			`Tool ${tool.name}: ui-action resolve must declare procedure, idArg and idField ("model.method", the arg carrying the id, the row field it matches).`,
@@ -177,5 +212,5 @@ export async function executeUiActionTool(
 		return notFound;
 	}
 
-	return interpolate(config.payload, resolved, context);
+	return interpolate(config.payload, resolved, args, context);
 }

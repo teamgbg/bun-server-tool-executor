@@ -174,7 +174,16 @@ export interface UiActionExecutorConfig extends ExecutorConfigShared {
 	executor_key: "ui-action";
 	/** The UI action verb the client renders. Row data — never a code branch. */
 	action: string;
-	resolve: UiActionResolveConfig;
+	/**
+	 * How the executor finds and authorizes the row. OPTIONAL: absent means an
+	 * ECHO surface — the AI supplies an id and the client resolves it against
+	 * its own page state, so there is no server entity, nothing for resolve to
+	 * find, and no server-side scope that applies (nothing to leak). The id
+	 * comes back through `{arg.<name>}` in the payload. Present means the row
+	 * is read through the procedure and authorized against the calling agent
+	 * before it renders.
+	 */
+	resolve?: UiActionResolveConfig;
 	/**
 	 * The returned payload, declared not coded. `{resolve.<field>}` and
 	 * `{organisationId}` / `{userId}` / `{agentId}` interpolate from the
