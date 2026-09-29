@@ -4,7 +4,7 @@
  * @edit edit directly
  *
  * Core type definitions for the tool executor: discriminated ExecutorConfig
- * (OrpcExecutorConfig | SdkExecutorConfig),
+ * (OrpcExecutorConfig | SdkExecutorConfig | UiActionExecutorConfig),
  * EnrichConfig for post-query joins, and ExecutionContext carrying
  * user/org/admin state into each tool call.
  */
@@ -144,6 +144,43 @@ export interface OrpcExecutorConfig extends ExecutorConfigShared {
 export interface SdkExecutorConfig extends ExecutorConfigShared {
 	executor_key: "sdk";
 	// SDK-specific fields can be added here as needed.
+}
+
+// --- UI-action executor config ---
+
+/** The `resolve` block: how the executor finds the row a UI action renders. */
+export interface UiActionResolveConfig {
+	/** Router procedure returning the target rows, "model.method" — the generated snake_case namespaces. */
+	procedure: string;
+	/** The input arg carrying the target id. */
+	idArg: string;
+	/** The field on the resolved row that idArg matches. */
+	idField: string;
+	/**
+	 * "agent": allowed ids are RE-DERIVED from the agent row named by
+	 * context.agentId (org-scoped) — the same resolution the agent-context
+	 * loaders perform from form_ids / content_assessment_ids — so a caller
+	 * can never reach a row its agent does not hold. Nothing is handed in at
+	 * build time; ExecutionContext is identity-only by contract.
+	 */
+	scope: "agent" | "org";
+	/** scope "agent" only: the procedure that reads the agent row. */
+	agentProcedure?: string;
+	/** scope "agent" only: the agent row's field holding the allowed ids. */
+	agentIdsField?: string;
+}
+
+export interface UiActionExecutorConfig extends ExecutorConfigShared {
+	executor_key: "ui-action";
+	/** The UI action verb the client renders. Row data — never a code branch. */
+	action: string;
+	resolve: UiActionResolveConfig;
+	/**
+	 * The returned payload, declared not coded. `{resolve.<field>}` and
+	 * `{organisationId}` / `{userId}` / `{agentId}` interpolate from the
+	 * resolved row and the execution context.
+	 */
+	payload: Record<string, unknown>;
 }
 
 export interface EnrichConfig {

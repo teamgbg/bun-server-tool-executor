@@ -13,6 +13,7 @@
 import { getLogger } from "../configure.ts";
 import { executeHostCommand } from "../executors/host-command";
 import { executeSdkTool } from "../executors/sdk";
+import { executeUiActionTool } from "../executors/ui-action";
 import { executeOrpcProcedure } from "../executors/orpc";
 import { validateToolInput } from "@teamscala/formatters/validate-json-schema";
 import type {
@@ -51,6 +52,13 @@ export const EXECUTORS: ExecutorHandler[] = [
 	// adapter's credentials resolve from config/adapter rows + env, never
 	// from an authenticated call to itself).
 	{ matches: (k) => k.startsWith("sdk:"), execute: executeSdkTool },
+	// UI-action executor — a row-declared UI surface (show_form, show_document,
+	// focus_work_item, ...). The action, the procedure and the payload template
+	// are executor_config: adding a surface is a row, not a branch here. Scope
+	// "agent" re-derives the caller's allowed ids from the agent row, because
+	// ExecutionContext is identity-only and cannot carry build-time lists. See
+	// executors/ui-action.ts.
+	{ matches: (k) => k === "ui-action", execute: executeUiActionTool },
 	// Default — ORPC procedure dispatch (every active mcp_tool/ai_tools row).
 	{ matches: () => true, execute: executeOrpcDefault },
 ];
