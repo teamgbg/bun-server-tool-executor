@@ -11,39 +11,38 @@
  * through the row's own ORPC procedure, authorize it against the agent that
  * called, and return a payload template interpolated from the resolved row.
  *
- * WHY A FAMILY, NOT A BLOB. The chat surfaces this replaces were hand-written
- * builders closing over lists handed in at build time. Only the row-resolve
- * surfaces ride this family — show_form, show_assessment, and anything that
- * resolves one row by id. The rest of internal-tool-builders.ts is NOT a
- * ui-action shape and must not be deleted by a reader of this comment:
- * read_page returns a DOM snapshot threaded from the request body (no row),
- * browser_action passes the AI's descriptor through unchanged (no row),
- * highlight targets by selector/text with a parent-chain walk (no id arg),
- * show_website echoes a page id with no resolvable page model on the host.
- * Verified 2026-09-29 against app-gpt-bun's schema: it has forms + assessments
- * + assessment_responses, NO documents model, NO page model — do not assume a
- * resolve procedure exists until you have read the host's generated router.
- * ExecutionContext is identity-only (scala-os contracts/mcp.ts), so no
- * executor can receive those lists — and that is the point: the build-time
- * hand-in is the thing being deleted. Scope is re-DERIVED here from
- * context.agentId against the agent row's own *_ids, exactly the resolution
- * agent-context.ts performs, so the row carries the fact and this file
- * carries none of it.
+ * WHY A FAMILY, NOT A BLOB. Only the row-resolve surfaces ride this family —
+ * show_form, show_assessment, and anything that resolves one row by id. The
+ * other hand-written chat surfaces are NOT a ui-action shape and must not be
+ * deleted on the strength of a comment: read_page returns a DOM snapshot
+ * threaded from the request body (no row), browser_action passes the AI's
+ * descriptor through unchanged (no row), highlight targets by selector/text
+ * with a parent-chain walk (no id arg), show_website echoes a page id with no
+ * resolvable page model. Verified 2026-09-29 against app-gpt-bun's schema: it
+ * has forms + assessments + assessment_responses, NO documents model, NO page
+ * model — do not assume a resolve procedure exists until you have read the
+ * host's generated router. ExecutionContext is identity-only (scala-os
+ * contracts/mcp.ts), so no executor can receive those lists — and that is the
+ * point: the build-time hand-in is the thing being deleted. Scope is
+ * re-DERIVED here from context.agentId against the agent row's own *_ids, so
+ * the row carries the fact and this file carries none of it.
  *
  * PER-SLUG BEHAVIOUR IS ROW DATA. The action verb, the procedure, the id arg,
  * the id field and the payload template all live in executor_config. Adding a
- * seventh surface is a registry row, not a case label here: a switch on
- * action names would put a hand-maintained enumeration in code of exactly the
- * kind this executor deletes from the caller.
+ * seventh surface is a registry row, not a case label here.
  *
  * FAILS CLOSED, NEVER DEGRADES. An id the agent does not hold, a missing
  * agentId, a missing config field: each answers "not found" (or a message
- * naming the row field) rather than resolving the row anyway. A UI action that
- * renders another agent's document is worse than one that does not render.
+ * naming the row field) rather than resolving the row anyway.
  */
 
 import { getLogger } from "../configure.ts";
-import type { ExecutionContext, OrpcExecutorConfig, ToolDefinition, UiActionExecutorConfig } from "../lib/types";
+import type {
+	ExecutionContext,
+	OrpcExecutorConfig,
+	ToolDefinition,
+	UiActionExecutorConfig,
+} from "../lib/types";
 import { executeOrpcProcedure } from "./orpc.ts";
 
 const logger = getLogger();

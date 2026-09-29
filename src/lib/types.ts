@@ -181,6 +181,20 @@ export interface UiActionExecutorConfig extends ExecutorConfigShared {
 	 * resolved row and the execution context.
 	 */
 	payload: Record<string, unknown>;
+	/**
+	 * The description projection, present when the model must be able to see
+	 * WHICH ids exist before it can call. Absent means the row's description is
+	 * served verbatim. See renderUiActionDescription.
+	 */
+	describe?: UiActionDescribeConfig;
+}
+
+/** How a ui-action row's description renders the rows a calling agent holds. */
+export interface UiActionDescribeConfig {
+	/** The field on each listed row the id line renders — "name", "title". */
+	labelField: string;
+	/** The heading above the list — "Available forms:". */
+	heading: string;
 }
 
 export interface EnrichConfig {
