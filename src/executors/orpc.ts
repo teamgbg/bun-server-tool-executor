@@ -160,7 +160,11 @@ export async function executeOrpcProcedure(
 	// and the query went to the pool — is exactly the two-connection defect
 	// `withRlsTransaction` exists to remove: the context landed on whichever
 	// connection was free, not the one the query used.
-	const contextFor = (boundPrisma: unknown, boundDb8: unknown) => ({
+	const contextFor = (
+		boundPrisma: unknown,
+		boundDb8: unknown,
+		rlAttribution?: Record<string, unknown>,
+	) => ({
 		prisma: boundPrisma,
 		// The v8 chained client. Generated v8 procedures resolve their model
 		// through `resolveModelOrm(ctx.db8)`, which THROWS when db8 is absent
@@ -176,6 +180,12 @@ export async function executeOrpcProcedure(
 		// reconstructed subset) for caller-scoped downstream dispatch.
 		// See `downstream-transports-are-caller-scoped`.
 		callerInfo: resolvedContext.callerInfo,
+		// The field the GENERATED fn middleware reads: it spreads this into the
+		// SessionContext it hands `withRlsTransaction`, so the pane / CLI-session
+		// identity reaches `SET LOCAL app.pane_id`, `app.cli_session_id` and the
+		// audit trigger. Absent on the read path, where the emitter's `?? {}`
+		// makes behaviour byte-identical to before.
+		rlAttribution,
 	});
 	const callerFor = (context: ReturnType<typeof contextFor>) =>
 		createCaller(router as unknown as AnyRouter, { context }) as Record<
@@ -329,9 +339,9 @@ export async function executeOrpcProcedure(
 
 	let result = needsRlsContext
 		? await withRlsTransaction(rlsContext, async (scope) => {
-				const txMethod = callerFor(contextFor(scope.tx, scope.models))[
-					methodName
-				];
+				const txMethod = callerFor(
+					contextFor(scope.tx, scope.models, rlsContext),
+				)[methodName];
 				return txMethod(finalArgs);
 			})
 		: await method(finalArgs);
