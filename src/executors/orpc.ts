@@ -3,7 +3,30 @@
  * @status handwritten
  * @edit edit directly
  *
- * orpc.ts — describe what this file does.
+ * orpc.ts — dispatch one generated oRPC procedure on behalf of a tool call:
+ * resolve the namespace, prepare and scope the args, run the gates that must
+ * refuse before any statement, then call the procedure and post-process what
+ * it returns.
+ *
+ * A WRITE OPENS ITS OWN RLS TRANSACTION, AND THE CALLER RIDES IT. This file
+ * used to call `setRlsContext`/`resetRlsContext`, which set the RLS context on
+ * the shared module pool and then queried the pool — two different
+ * connections, so the context landed on whichever was free rather than the one
+ * the write used, and the attribution could diverge from the write it
+ * attributed. `withRlsTransaction` borrows ONE connection, BEGINs, issues the
+ * `SET LOCAL` context on it, and returns a scope whose `tx` and `models` are
+ * both bound to THAT connection.
+ *
+ * The oRPC obstacle is that `createCaller` binds the clients into a context
+ * object at construction, so a captured `method` cannot be re-pointed at the
+ * transaction afterwards. The context is therefore a FUNCTION of the client
+ * pair (`contextFor`), and the write builds a SECOND caller from the scope —
+ * the same rebind the generated middleware performs through
+ * `opt.next({ context })`. A read needs none of this and stays on the pool.
+ *
+ * There is no reset arm, and none is needed: `SET LOCAL` is discarded when the
+ * transaction ends, so a stale pane identity on a pooled connection is
+ * unrepresentable rather than merely avoided.
  */
 import { createRouterClient as createCaller, type AnyRouter } from "@orpc/server";
 import type { PrismaClient } from "@teamscala/db/client";
@@ -19,7 +42,7 @@ import { buildFinalArgsByMethod } from "./orpc/final-args-by-method";
 import { preprocessSearch } from "./orpc/preprocess-search";
 import { assertProtectedUniqueWrite } from "./orpc/protected-unique-write";
 import { resolveCallerUser, type CallerUserDb } from "./orpc/resolve-caller-user";
-import { setRlsContext, resetRlsContext } from "@teamscala/db/rls-context";
+import { withRlsTransaction } from "@teamscala/db/rls-context";
 import { getDb8 } from "@teamscala/db/db8-registry";
 import {
 	applyDerivedCommentIdentity,
@@ -130,32 +153,36 @@ export async function executeOrpcProcedure(
 		prisma as unknown as CallerUserDb,
 		resolvedContext,
 	);
-	const caller = createCaller(
-		router as unknown as AnyRouter,
-		{
-			context: {
-				prisma: prisma,
-				// The v8 chained client, read from the registry the boot layer
-				// populates (mount-orpc-router calls registerDb8 after
-				// createDbClientV8). Generated v8 procedures resolve their model
-				// through `resolveModelOrm(ctx.db8)`, which THROWS when db8 is
-				// absent since the v7 adapter was cut. mount-orpc-router builds
-				// its own context and passes db8; this is the SECOND context
-				// builder and it was missed, so every tool dispatched through
-				// tool-executor threw "the v8 client (db8) is required" — which
-				// is every generated DB tool on scala-mcp, comments included, so
-				// lane-to-lane messaging stopped with it.
-				db8: getDb8() ?? undefined,
-				user: callerUser,
-				orgId: callerUser.organisationId,
-				// Forward the complete canonical caller snapshot so the gateway
-				// procedure can re-enter ALS with the FULL identity (not a
-				// reconstructed subset) for caller-scoped downstream dispatch.
-				// See `downstream-transports-are-caller-scoped`.
-				callerInfo: resolvedContext.callerInfo,
-			},
-		},
-	) as Record<string, (a: unknown) => Promise<unknown>>;
+	// The context is a FUNCTION of the client pair, not a fixed object: a write
+	// must run with the context bound to the TRANSACTION client, and a read
+	// runs on the pool. Building it once with pool clients — the shape the
+	// deleted set/reset pair tolerated, because the context was set on the pool
+	// and the query went to the pool — is exactly the two-connection defect
+	// `withRlsTransaction` exists to remove: the context landed on whichever
+	// connection was free, not the one the query used.
+	const contextFor = (boundPrisma: unknown, boundDb8: unknown) => ({
+		prisma: boundPrisma,
+		// The v8 chained client. Generated v8 procedures resolve their model
+		// through `resolveModelOrm(ctx.db8)`, which THROWS when db8 is absent
+		// since the v7 adapter was cut. On the write path this is
+		// `scope.models` — the model surface bound to the SAME connection the
+		// `SET LOCAL` context was issued on, so attribution and the write can
+		// never diverge. On the read path it is the registry's client.
+		db8: boundDb8,
+		user: callerUser,
+		orgId: callerUser.organisationId,
+		// Forward the complete canonical caller snapshot so the gateway
+		// procedure can re-enter ALS with the FULL identity (not a
+		// reconstructed subset) for caller-scoped downstream dispatch.
+		// See `downstream-transports-are-caller-scoped`.
+		callerInfo: resolvedContext.callerInfo,
+	});
+	const callerFor = (context: ReturnType<typeof contextFor>) =>
+		createCaller(router as unknown as AnyRouter, { context }) as Record<
+			string,
+			(a: unknown) => Promise<unknown>
+		>;
+	const caller = callerFor(contextFor(prisma, getDb8() ?? undefined));
 
 	const method = caller[methodName];
 	if (typeof method !== "function") {
@@ -281,33 +308,33 @@ export async function executeOrpcProcedure(
 	const callerCliSession = needsRlsContext
 		? await resolveCallerCliSession(prisma, resolvedContext)
 		: null;
-	if (needsRlsContext) {
-		await setRlsContext(prisma, {
-			userId: resolvedContext.userId,
-			userName: resolvedContext.userId === "system" ? "system" : undefined,
-			serviceSource: resolvedContext.serviceSource,
-			writePath: `orpc:${modelName}.${methodName}`,
-			agentId: resolvedContext.agentId,
-			// Sourced from the VERIFIED resolved caller (stored role / system
-			// sentinel), not the unpopulated header `resolvedContext.isAdmin` —
-			// the same multi-tenant fail-open resolveCallerUser just closed.
-			isSuperAdmin: callerUser.isSuperAdmin,
-			paneId: resolvedContext.callerInfo?.tmuxTarget,
-			paneLabel: resolvedContext.callerInfo?.label,
-			cliSessionId:
-				commentIdentity?.source_cli_session_id ?? callerCliSession?.id ?? null,
-			cliKind: resolvedContext.callerInfo?.["cliKind"] as string | null | undefined,
-		});
-	}
+	// A write runs inside its own transaction with the context bound to it; see
+	// the file header for why the pair it replaced was two connections.
+	const rlsContext = {
+		userId: resolvedContext.userId,
+		userName: resolvedContext.userId === "system" ? "system" : undefined,
+		serviceSource: resolvedContext.serviceSource,
+		writePath: `orpc:${modelName}.${methodName}`,
+		agentId: resolvedContext.agentId,
+		// Sourced from the VERIFIED resolved caller (stored role / system
+		// sentinel), not the unpopulated header `resolvedContext.isAdmin` —
+		// the same multi-tenant fail-open resolveCallerUser just closed.
+		isSuperAdmin: callerUser.isSuperAdmin,
+		paneId: resolvedContext.callerInfo?.tmuxTarget,
+		paneLabel: resolvedContext.callerInfo?.label,
+		cliSessionId:
+			commentIdentity?.source_cli_session_id ?? callerCliSession?.id ?? null,
+		cliKind: resolvedContext.callerInfo?.["cliKind"] as string | null | undefined,
+	};
 
-	let result;
-	try {
-		result = await method(finalArgs);
-	} finally {
-		if (needsRlsContext) {
-			await resetRlsContext(prisma);
-		}
-	}
+	let result = needsRlsContext
+		? await withRlsTransaction(rlsContext, async (scope) => {
+				const txMethod = callerFor(contextFor(scope.tx, scope.models))[
+					methodName
+				];
+				return txMethod(finalArgs);
+			})
+		: await method(finalArgs);
 
 	// Merge the enumerated target identities into the bulk-mutation result so
 	// the caller (and the audit trail) sees WHICH rows changed, capped at the
