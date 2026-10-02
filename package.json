@@ -8,7 +8,7 @@
   "capability": "Tool executor: ORPC procedure runtime consuming tool_definition rows, executing via executor_dispatch, with audit + FTS routing.",
   "tier": "server",
   "type": "module",
-  "version": "4.1.80",
+  "version": "4.1.174",
   "description": "Tool executor: ORPC procedure runtime consuming tool_definition rows, executing via executor_dispatch, with audit + FTS routing.",
   "imports": {
     "#tool-executor/*": "./src/*",
