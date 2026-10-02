@@ -102,10 +102,10 @@ describe("resolveSdkClientOptions", () => {
 
 describe("assertSdkAdapterResolvable — the boot gate", () => {
 	test("an installed adapter resolves through its root export", () => {
-		// @teamscala/os is installed in this package's node_modules with a
-		// root "." export — the bare-name resolution the executor uses for
-		// adapters that have one.
-		expect(() => assertSdkAdapterResolvable("os")).not.toThrow();
+		// @teamscala/notify-listener is installed in this package's
+		// node_modules with a root "." export — the bare-name resolution the
+		// executor uses for adapters that have one.
+		expect(() => assertSdkAdapterResolvable("notify-listener")).not.toThrow();
 	});
 
 	test("a missing adapter refuses, naming the package and the sdk rows", () => {
