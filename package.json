@@ -103,7 +103,7 @@
     "./lib/types": "./src/lib/types.ts",
     "./lib/types.ts": "./src/lib/types.ts"
   },
-  "repository": "https://github.com/teamgbg/bun-server-tool-executor",
+  "repository": "https://github.com/teamgbg/server-tool-executor-ts",
   "publishConfig": {
     "registry": "https://registry.npmjs.org"
   }
